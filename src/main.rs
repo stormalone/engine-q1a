@@ -111,6 +111,39 @@ fn init(parser_state: &Rc<RefCell<ParserState>>) {
     }
 }
 
+fn read_file(parser_state: &Rc<RefCell<ParserState>>, file: Vec<u8>) {
+    let path = std::env::args().nth(1).unwrap();
+
+    let (block, delta) = {
+        let parser_state = parser_state.borrow();
+        let mut working_set = ParserWorkingSet::new(&*parser_state);
+        let (output, err) = working_set.parse_file(&path, &file, false);
+        if let Some(err) = err {
+            eprintln!("Parse Error: {:?}", err);
+            std::process::exit(1);
+        }
+        (output, working_set.render())
+    };
+
+    ParserState::merge_delta(&mut *parser_state.borrow_mut(), delta);
+
+    let state = State {
+        parser_state: &*parser_state.borrow(),
+    };
+
+    let stack = Stack::new();
+
+    match eval_block(&state, stack, &block) {
+        Ok(value) => {
+            println!("{}", value);
+        }
+        Err(err) => {
+            eprintln!("Eval Error: {:?}", err);
+            std::process::exit(1);
+        }
+    }
+}
+
 fn main() -> std::io::Result<()> {
     let parser_state = Rc::new(RefCell::new(ParserState::new()));
 
@@ -121,34 +154,7 @@ fn main() -> std::io::Result<()> {
 
         let file = std::fs::read(&path)?;
 
-        let (block, delta) = {
-            let parser_state = parser_state.borrow();
-            let mut working_set = ParserWorkingSet::new(&*parser_state);
-            let (output, err) = working_set.parse_file(&path, &file, false);
-            if let Some(err) = err {
-                eprintln!("Parse Error: {:?}", err);
-                std::process::exit(1);
-            }
-            (output, working_set.render())
-        };
-
-        ParserState::merge_delta(&mut *parser_state.borrow_mut(), delta);
-
-        let state = State {
-            parser_state: &*parser_state.borrow(),
-        };
-
-        let stack = Stack::new();
-
-        match eval_block(&state, stack, &block) {
-            Ok(value) => {
-                println!("{}", value);
-            }
-            Err(err) => {
-                eprintln!("Eval Error: {:?}", err);
-                std::process::exit(1);
-            }
-        }
+        read_file(&parser_state, file);
 
         Ok(())
     } else {
