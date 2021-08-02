@@ -4,8 +4,7 @@ use engine_q::{
     eval_block, NuHighlighter, ParserState, ParserWorkingSet, Signature, Stack, State, SyntaxShape,
 };
 
-fn main() -> std::io::Result<()> {
-    let parser_state = Rc::new(RefCell::new(ParserState::new()));
+fn init(parser_state: &Rc<RefCell<ParserState>>) {
     let delta = {
         let parser_state = parser_state.borrow();
         let mut working_set = ParserWorkingSet::new(&*parser_state);
@@ -110,6 +109,12 @@ fn main() -> std::io::Result<()> {
     {
         ParserState::merge_delta(&mut *parser_state.borrow_mut(), delta);
     }
+}
+
+fn main() -> std::io::Result<()> {
+    let parser_state = Rc::new(RefCell::new(ParserState::new()));
+
+    init(&parser_state);
 
     if let Some(path) = std::env::args().nth(1) {
         let parser_state = parser_state;
