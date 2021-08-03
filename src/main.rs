@@ -138,7 +138,7 @@ fn read_file(parser_state: &Rc<RefCell<ParserState>>, current_line: u8, file_con
             println!("{}", value);
         }
         Err(err) => {
-            eprintln!("Eval Error: {:?}", err);
+            eprintln!("Eval Error 01: {:?}", err);
             std::process::exit(1);
         }
     }
@@ -239,7 +239,7 @@ fn main() -> std::io::Result<()> {
                             println!("{}", value);
                         }
                         Err(err) => {
-                            eprintln!("Eval Error: {:?}", err);
+                            eprintln!("Eval Error 02: {:?}", err);
                         }
                     }
                 }
