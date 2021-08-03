@@ -111,13 +111,13 @@ fn init(parser_state: &Rc<RefCell<ParserState>>) {
     }
 }
 
-fn read_file(parser_state: &Rc<RefCell<ParserState>>, file: Vec<u8>) {
+fn read_file(parser_state: &Rc<RefCell<ParserState>>, file_content: Vec<u8>) {
     let path = std::env::args().nth(1).unwrap();
 
     let (block, delta) = {
         let parser_state = parser_state.borrow();
         let mut working_set = ParserWorkingSet::new(&*parser_state);
-        let (output, err) = working_set.parse_file(&path, &file, false);
+        let (output, err) = working_set.parse_file(&path, &file_content, false);
         if let Some(err) = err {
             eprintln!("Parse Error: {:?}", err);
             std::process::exit(1);
@@ -152,9 +152,9 @@ fn main() -> std::io::Result<()> {
     if let Some(path) = std::env::args().nth(1) {
         let parser_state = parser_state;
 
-        let file = std::fs::read(&path)?;
+        let file_content = std::fs::read(&path)?;
 
-        read_file(&parser_state, file);
+        read_file(&parser_state, file_content);
 
         Ok(())
     } else {
