@@ -111,8 +111,8 @@ fn init(parser_state: &Rc<RefCell<ParserState>>) {
     }
 }
 
-fn read_file(parser_state: &Rc<RefCell<ParserState>>, file_content: Vec<u8>) {
-    let path = std::env::args().nth(1).unwrap();
+fn read_file(parser_state: &Rc<RefCell<ParserState>>, current_line: u8, file_content: Vec<u8>) {
+    let path = &format!("line_{}", current_line);
 
     let (block, delta) = {
         let parser_state = parser_state.borrow();
@@ -144,6 +144,24 @@ fn read_file(parser_state: &Rc<RefCell<ParserState>>, file_content: Vec<u8>) {
     }
 }
 
+fn read_linebuf(
+    parser_state: &Rc<RefCell<ParserState>>,
+    current_line: u8,
+    linebuf: &String,
+) -> bool {
+    let mut iter = linebuf.split_ascii_whitespace();
+    if iter.next().unwrap() == "read" {
+        let filename = iter.next().unwrap();
+        println!("{}", filename);
+        let filecontent = std::fs::read(&filename).unwrap();
+        println!("{:?}", filecontent);
+        read_file(&parser_state, current_line, filecontent);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 fn main() -> std::io::Result<()> {
     let parser_state = Rc::new(RefCell::new(ParserState::new()));
 
@@ -154,7 +172,7 @@ fn main() -> std::io::Result<()> {
 
         let file_content = std::fs::read(&path)?;
 
-        read_file(&parser_state, file_content);
+        read_file(&parser_state, 100, file_content);
 
         Ok(())
     } else {
@@ -190,6 +208,8 @@ fn main() -> std::io::Result<()> {
                         continue;
                     } else if s.trim() == "stack" {
                         stack.print_stack();
+                    } else if read_linebuf(&parser_state, current_line, &s) {
+                        println!("processed file");
                     }
                     // println!("input: '{}'", s);
 
