@@ -212,36 +212,37 @@ fn main() -> std::io::Result<()> {
                         println!("processed file");
                     }
                     // println!("input: '{}'", s);
+                    /*
+                                        let (block, delta) = {
+                                            let parser_state = parser_state.borrow();
+                                            let mut working_set = ParserWorkingSet::new(&*parser_state);
+                                            let (output, err) = working_set.parse_file(
+                                                &format!("line_{}", current_line),
+                                                s.as_bytes(),
+                                                false,
+                                            );
+                                            if let Some(err) = err {
+                                                eprintln!("Parse Error: {:?}", err);
+                                                continue;
+                                            }
+                                            (output, working_set.render())
+                                        };
 
-                    let (block, delta) = {
-                        let parser_state = parser_state.borrow();
-                        let mut working_set = ParserWorkingSet::new(&*parser_state);
-                        let (output, err) = working_set.parse_file(
-                            &format!("line_{}", current_line),
-                            s.as_bytes(),
-                            false,
-                        );
-                        if let Some(err) = err {
-                            eprintln!("Parse Error: {:?}", err);
-                            continue;
-                        }
-                        (output, working_set.render())
-                    };
+                                        ParserState::merge_delta(&mut *parser_state.borrow_mut(), delta);
 
-                    ParserState::merge_delta(&mut *parser_state.borrow_mut(), delta);
+                                        let state = State {
+                                            parser_state: &*parser_state.borrow(),
+                                        };
 
-                    let state = State {
-                        parser_state: &*parser_state.borrow(),
-                    };
-
-                    match eval_block(&state, stack.clone(), &block) {
-                        Ok(value) => {
-                            println!("{}", value);
-                        }
-                        Err(err) => {
-                            eprintln!("Eval Error 02: {:?}", err);
-                        }
-                    }
+                                        match eval_block(&state, stack.clone(), &block) {
+                                            Ok(value) => {
+                                                println!("{}", value);
+                                            }
+                                            Err(err) => {
+                                                eprintln!("Eval Error 02: {:?}", err);
+                                            }
+                                        }
+                    */
                 }
                 Signal::CtrlC => {
                     println!("Ctrl-c");
